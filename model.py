@@ -125,8 +125,7 @@ def _preprocess_data(data):
     x_standardisetest = pd.DataFrame(x_scaledtest,columns=x.columns)
 
     
-    predict_vector = feature_vector_df[['Pickup Lat','Pickup Long',
-                                        'Destination Lat','Destination Long']]
+    predict_vector = x
     # ------------------------------------------------------------------------
 
     return predict_vector
