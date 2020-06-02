@@ -59,6 +59,75 @@ def _preprocess_data(data):
     # ---------------------------------------------------------------
 
     # ----------- Replace this code with your own preprocessing steps --------
+    dataset = pd.read_csv('Train.csv')
+    dataset_test = pd.read_csv('Test.csv')
+    dataset.head()
+    
+    new_df = dataset[['Order No','User Id','Platform Type','Personal or Business','Placement - Day of Month','Placement - Weekday (Mo = 1)','Placement - Time','Confirmation - Time','Arrival at Pickup - Time','Arrival at Destination - Time','Distance (KM)','Temperature','Rider Id','Time from Pickup to Arrival']].copy()
+    new_df.columns = [col.replace(" ","_") for col in new_df.columns] 
+    dataset_test  = dataset[['User Id','Platform Type','Personal or Business','Placement - Day of Month','Placement - Weekday (Mo = 1)','Placement - Time','Confirmation - Time','Arrival at Pickup - Time','Arrival at Destination - Time','Distance (KM)','Temperature','Rider Id','Time from Pickup to Arrival']].copy()
+    dataset_test.columns = [col.replace(" ","_") for col in dataset_test.columns] 
+    
+    new_df = pd.get_dummies(new_df, columns=['Personal_or_Business'], prefix = ['personal'])
+    new_df = new_df.iloc[:, :-1]
+    new_df.columns = [*new_df.columns[:-1], 'Business']
+    
+    new_df['Temperature'] = new_df.Temperature.fillna(new_df.Temperature.median())
+
+
+    dataset_test['Temperature'] = dataset_test.Temperature.fillna(dataset_test.Temperature.median())
+
+
+    dataset_test = pd.get_dummies(dataset_test, columns=['Personal_or_Business'], prefix = ['personal'])
+    dataset_test = dataset_test.iloc[:, :-1]
+    
+    new_df['Placement_-_Time 24'] = (pd.to_datetime(new_df['Placement_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    new_df['Confirmation_-_Time 24'] = (pd.to_datetime(new_df['Confirmation_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    new_df['Arrival_at_Pickup_-_Time 24'] = (pd.to_datetime(new_df['Arrival_at_Pickup_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    new_df['Arrival_at_Destination_-_Time 24'] = (pd.to_datetime(new_df['Arrival_at_Destination_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+
+
+
+    dataset_test['Placement_-_Time 24'] = (pd.to_datetime(new_df['Placement_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    dataset_test['Confirmation_-_Time 24'] = (pd.to_datetime(new_df['Confirmation_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    dataset_test['Arrival_at_Pickup_-_Time 24'] = (pd.to_datetime(new_df['Arrival_at_Pickup_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    dataset_test['Arrival_at_Destination_-_Time 24'] = (pd.to_datetime(new_df['Arrival_at_Destination_-_Time'].str.strip(), format='%I:%M:%S %p')
+                  .dt.strftime('%H:%M'))
+    
+    new_df.drop(['Placement_-_Time', 'Confirmation_-_Time','Arrival_at_Pickup_-_Time','Arrival_at_Destination_-_Time','User_Id','Rider_Id'], axis=1)
+
+    dataset_test.drop(['Placement_-_Time', 'Confirmation_-_Time','Arrival_at_Pickup_-_Time','Arrival_at_Destination_-_Time','User_Id','Rider_Id'], axis=1)
+    dataset_test.columns = [*dataset_test.columns[:-1], 'Business']
+    
+    new_df = new_df[['Platform_Type', 'Arrival_at_Pickup_-_Time 24','Confirmation_-_Time 24','Placement_-_Time 24','Business','Temperature','Distance_(KM)','Placement_-_Weekday_(Mo_=_1)','Placement_-_Day_of_Month','Platform_Type', 'Arrival_at_Destination_-_Time 24', 'Time_from_Pickup_to_Arrival']]
+    new_df['Placement_-_Time 24'] = new_df['Placement_-_Time 24'].str.replace(':','.')
+    new_df['Confirmation_-_Time 24'] = new_df['Confirmation_-_Time 24'].str.replace(':','.')
+    new_df['Arrival_at_Pickup_-_Time 24'] = new_df['Arrival_at_Pickup_-_Time 24'].str.replace(':','.')
+    new_df['Arrival_at_Destination_-_Time 24'] = new_df['Arrival_at_Destination_-_Time 24'].str.replace(':','.')
+ 
+
+
+    dataset_test = dataset_test[['Platform_Type', 'Arrival_at_Pickup_-_Time 24','Confirmation_-_Time 24','Placement_-_Time 24','Business','Temperature','Distance_(KM)','Placement_-_Weekday_(Mo_=_1)','Placement_-_Day_of_Month','Platform_Type', 'Arrival_at_Destination_-_Time 24', 'Time_from_Pickup_to_Arrival']]
+    dataset_test['Placement_-_Time 24'] = dataset_test['Placement_-_Time 24'].str.replace(':','.')
+    dataset_test['Confirmation_-_Time 24'] = dataset_test['Confirmation_-_Time 24'].str.replace(':','.')
+    dataset_test['Arrival_at_Pickup_-_Time 24'] = dataset_test['Arrival_at_Pickup_-_Time 24'].str.replace(':','.')
+    dataset_test['Arrival_at_Destination_-_Time 24'] = dataset_test['Arrival_at_Destination_-_Time 24'].str.replace(':','.')
+    
+    x =pd.DataFrame(new_df.iloc[:,:-1].values)
+    y = new_df.iloc[:,-1].values
+
+
+    x_test =pd.DataFrame(new_df.iloc[:,:-1].values)
+    y_test= new_df.iloc[:,-1].values
+
+    
     predict_vector = feature_vector_df[['Pickup Lat','Pickup Long',
                                         'Destination Lat','Destination Long']]
     # ------------------------------------------------------------------------
